@@ -16,13 +16,14 @@ dotenv.config();
 const port = process.env.PORT || 5000;
 const app = express();
 
+// Cookie parser middleware
+app.use(cookieParser());
+
 // Body parser middleware
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Cookie parser middleware
-app.use(cookieParser());
 
 app.get('/', (req, res) => {
     res.send('API is running...');
