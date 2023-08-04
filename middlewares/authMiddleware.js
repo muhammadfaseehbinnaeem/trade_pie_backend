@@ -11,15 +11,15 @@ const protect = asyncHandler(async (req, res, next) => {
     // Read the JWT from the cookie
     token = req.cookies.jwt;
 
-    log('token: ' +token);
+    console.log('token: ' +token);
     if 
     (token) {
         try {
             const decode = jwt.verify(token, process.env.JWT_KEY);
-            log('decode: ' + decode);
+            console.log('decode: ' + decode);
             
             req.user = await User.findById(decode.userId).select('-password');
-            log('user: ' +req.user);
+            console.log('user: ' +req.user);
             
             if (!req.user) {
                 req.user = await Admin.findById(decode.userId).select('-password');
