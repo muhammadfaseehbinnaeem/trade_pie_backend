@@ -12,15 +12,13 @@ const protect = asyncHandler(async (req, res, next) => {
     // token = req.cookies.jwt;
     token = req.cookies.jwt;
 
-    console.log('req: ' +req.body);
+    console.log('token: ' +JSON.parse(req).cookie.jwt);
     if 
     (token) {
         try {
             const decode = jwt.verify(token, process.env.JWT_KEY);
-            console.log('decode: ' + decode);
             
             req.user = await User.findById(decode.userId).select('-password');
-            console.log('user: ' +req.user);
             
             if (!req.user) {
                 req.user = await Admin.findById(decode.userId).select('-password');
