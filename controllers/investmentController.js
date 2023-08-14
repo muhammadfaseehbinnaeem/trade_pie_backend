@@ -2,42 +2,42 @@ import asyncHandler from '../middlewares/asyncHandler.js';
 import fileUpload from'../middlewares/fileUpload.js';
 import User from '../models/userModel.js';
 import Investment from '../models/investmentModel.js';
+import Admin from '../models/adminModel.js';
 
 const createInvestment = (req, res) => {
     fileUpload(req, res, asyncHandler(async (err) => {
         if (err) {
             return res.status(400).json({ success: false, error: err.message });
         }
-    
-        const user = req.user._id;
-        const { amount } = req.body;
-        const image = req.file.path;
-
-        const investment = await Investment.create({
-            amount,
-            image,
-            user
-        });
         
-        if (investment) {
-            const investmentUser = await User.findById(req.user._id);
+        const admin = await Admin.findOne({ isAdmin: true });
 
-            if (investmentUser) {
-                investmentUser.investment = (investmentUser.investment + investment.amount) || investmentUser.investment;
+        if (admin) {
+            const user = req.user._id;
+            const { amount } = req.body;
+            const image = req.file.path;
+            const profit = amount <= 10 ? admin.profitRange1 :
+                amount > 10 && amount <=100 ? admin.profitRange2 :
+                amount > 100 && amount <= 500 ? admin.profitRange3 :
+                amount > 500 && amount <= 1000 ? admin.profitRange4 :
+                admin.profitRange5;
 
-                await investmentUser.save();
-
+            const investment = await Investment.create({
+                user,
+                amount,
+                image,
+                profit
+            });
+            
+            if (investment) {
                 res.status(201).json({
                     success: true,
                     amount: investment.amount
                 });
             } else {
-                res.status(404);
-                throw new Error('User not found.');
+                res.status(400);
+                throw new Error('Invalid investment data.');
             }
-        } else {
-            res.status(400);
-            throw new Error('Invalid investment data.');
         }
     }));
 };
@@ -95,14 +95,23 @@ const updatePendingInvestment = asyncHandler(async (req, res) => {
     const user = await User.findById(investment.user);
     
     if (investment && user) {
-        const { isActive, isApproved, status } = req.body;
-        const amount = parseFloat(req.body.amount);
-        const profit = parseFloat(req.body.profit);
+        const { amount, isActive, isApproved, status, profit } = req.body;
 
-        investment.profit = profit;
         investment.isActive = isActive;
         investment.isApproved = isApproved;
 
+        user.wallet = (
+            (status === 'Approved') ?
+            (user.wallet + amount + profit) :
+            user.wallet
+        ) || user.wallet;
+
+        user.investment = (
+            (status === 'Approved') ?
+            (user.investment + amount) :
+            user.investment
+        ) || user.investment;
+        
         user.earning = (
             (status === 'Approved') ?
             (user.earning + amount + profit) :

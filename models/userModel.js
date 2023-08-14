@@ -10,9 +10,11 @@ const userSchema = new mongoose.Schema(
         accountNumber: { type: String, required: true },
         accountType: { type: String, required: true },
         referral: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'User', default: null },
+        wallet: { type: Number, required: true, default: 0 },
         referralCommission: { type: Number, required: true, default: 0 },
         teamCommission: { type: Number, required: true, default: 0 },
         investment: { type: Number, required: true, default: 0 },
+        withdrawal: { type: Number, required: true, default: 0 },
         earning: { type: Number, required: true, default: 0 },
         profit: { type: Number, required: true, default: 0 }
     },

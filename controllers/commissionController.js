@@ -119,6 +119,12 @@ const approvePendingCommission = asyncHandler(async (req, res) => {
         commission.isActive = isActive;
         commission.isApproved = isApproved;
 
+        user.wallet = (
+            (status === 'Approved') ?
+            (user.wallet + commissionAmount) :
+            user.wallet
+        ) || user.wallet;
+
         user.earning = (
             (status === 'Approved') ?
             (user.earning + commissionAmount) :

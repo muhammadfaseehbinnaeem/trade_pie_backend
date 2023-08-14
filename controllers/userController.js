@@ -189,11 +189,13 @@ const getUserProfile = asyncHandler(async ( req, res) => {
                 accountNumber: user.accountNumber,
                 accountType: user.accountType,
                 referral: user.referral,
+                wallet: user.wallet,
                 referralCommission: user.referralCommission,
                 teamCommission: user.teamCommission,
                 investment: user.investment,
                 earning: user.earning,
                 profit: user.profit,
+                withdrawal: user.withdrawal,
                 goals: admin.goals
             }
         });

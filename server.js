@@ -41,10 +41,10 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/investments', investmentRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/commissions', commissionRoutes);
+app.use('/api/investments', investmentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
