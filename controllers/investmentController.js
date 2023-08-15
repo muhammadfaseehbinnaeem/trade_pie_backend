@@ -1,8 +1,8 @@
 import asyncHandler from '../middlewares/asyncHandler.js';
 import fileUpload from'../middlewares/fileUpload.js';
+import Admin from '../models/adminModel.js';
 import User from '../models/userModel.js';
 import Investment from '../models/investmentModel.js';
-import Admin from '../models/adminModel.js';
 
 const createInvestment = (req, res) => {
     fileUpload(req, res, asyncHandler(async (err) => {
@@ -11,7 +11,7 @@ const createInvestment = (req, res) => {
         }
         
         const admin = await Admin.findOne({ isAdmin: true });
-
+        
         if (admin) {
             const user = req.user._id;
             const { amount } = req.body;
@@ -64,19 +64,40 @@ const getUserInvestments = asyncHandler(async (req, res) => {
     }
 });
 
-const getInvestmentById = asyncHandler(async (req, res) => {
-    const investment = await Investment.findById(req.params.id);
-    const user = await User.findById(investment.user);
+const getAllInvestments = asyncHandler(async (req, res) => {
+    const status = req.params.status;
 
-    if (investment && user) {
+    const investments = status === 'All' ?
+    await Investment.find({}).sort({ createdAt: -1 }) :
+    status === 'Approved' ?
+    await Investment.find({ isActive: false, isApproved: true }).sort({ createdAt: -1 }) :
+    status === 'Rejected' ?
+    await Investment.find({ isActive: false, isApproved: false }).sort({ createdAt: -1 }) :
+    await Investment.find({ isActive: true, isApproved: false }).sort({ createdAt: -1 })
+
+    if (investments) {        
+        res.status(200).json({
+            success: true,
+            data: investments
+        });
+    } else {
+        res.status(404);
+        throw new Error('Investments not found.');
+    }
+});
+
+const getInvestmentById = asyncHandler(async (req, res) => {
+    const investment = await Investment.findById(req.params.id).populate('user', 'name accountNumber accountType');
+    
+    if (investment) {
         res.status(200).json({
             success: true,
             data: {
                 _id: investment._id,
-                userId: investment.user,
-                userName: user.name,
-                userAccountNumber: user.accountNumber,
-                userAccountType: user.accountType,
+                userId: investment.user._id,
+                userName: investment.user.name,
+                userAccountNumber: investment.user.accountNumber,
+                userAccountType: investment.user.accountType,
                 amount: investment.amount,
                 profit: investment.profit,
                 isActive: investment.isActive,
@@ -133,29 +154,7 @@ const updatePendingInvestment = asyncHandler(async (req, res) => {
         });
     } else {
         res.status(404);
-        throw new Error('Investment or User not found.');
-    }
-});
-
-const getAllInvestments = asyncHandler(async (req, res) => {
-    const status = req.params.status;
-
-    const investments = status === 'All' ?
-    await Investment.find({}).sort({ createdAt: -1 }) :
-    status === 'Approved' ?
-    await Investment.find({ isActive: false, isApproved: true }).sort({ createdAt: -1 }) :
-    status === 'Rejected' ?
-    await Investment.find({ isActive: false, isApproved: false }).sort({ createdAt: -1 }) :
-    await Investment.find({ isActive: true, isApproved: false }).sort({ createdAt: -1 })
-
-    if (investments) {        
-        res.status(200).json({
-            success: true,
-            data: investments
-        });
-    } else {
-        res.status(404);
-        throw new Error('Investments not found.');
+        throw new Error('Resource not found.');
     }
 });
 
@@ -164,5 +163,5 @@ export {
     getUserInvestments,
     getInvestmentById,
     updatePendingInvestment,
-    getAllInvestments,
+    getAllInvestments
 };

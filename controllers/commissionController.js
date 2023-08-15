@@ -1,5 +1,4 @@
 import asyncHandler from '../middlewares/asyncHandler.js';
-import Admin from '../models/adminModel.js';
 import User from '../models/userModel.js';
 import Commission from '../models/commissionModel.js';
 
@@ -158,7 +157,7 @@ const approvePendingCommission = asyncHandler(async (req, res) => {
         });
     } else {
         res.status(404);
-        throw new Error('Commission or User not found.');
+        throw new Error('Resource not found.');
     }
 });
 

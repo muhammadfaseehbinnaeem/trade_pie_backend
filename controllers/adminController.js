@@ -1,7 +1,8 @@
 import asyncHandler from '../middlewares/asyncHandler.js';
 import Admin from '../models/adminModel.js';
-import Investment from '../models/investmentModel.js';
 import Commission from '../models/commissionModel.js';
+import Investment from '../models/investmentModel.js';
+import Withdrawal from '../models/withdrawalModel.js';
 
 const getAdminDashboard = asyncHandler(async (req, res) => {
     const approvedReferralCommissionsCount = await Commission.countDocuments({ commissionType: 'Referral', isActive: false, isApproved: true });
@@ -14,6 +15,10 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
     const rejectedInvestmentsCount = await Investment.countDocuments({ isActive: false, isApproved: false });
     const pendingInvestmentsCount = await Investment.countDocuments({ isActive: true, isApproved: false });
 
+    const approvedWithdrawalsCount = await Withdrawal.countDocuments({ isActive: false, isApproved: true });
+    const rejectedWithdrawalsCount = await Withdrawal.countDocuments({ isActive: false, isApproved: false });
+    const pendingWithdrawalsCount = await Withdrawal.countDocuments({ isActive: true, isApproved: false });
+
     res.status(200).json({
         success: true,
         data: {
@@ -23,7 +28,10 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
             pendingTeamCommissionsCount,
             approvedInvestmentsCount,
             rejectedInvestmentsCount,
-            pendingInvestmentsCount
+            pendingInvestmentsCount,
+            approvedWithdrawalsCount,
+            rejectedWithdrawalsCount,
+            pendingWithdrawalsCount
         }
     });
 });
@@ -60,6 +68,38 @@ const updatePaymentAccount = asyncHandler(async (req, res) => {
                 accountNumber: updatedAdmin.accountNumber,
                 accountType: updatedAdmin.accountType
             }
+        });
+    } else {
+        res.status(404);
+        throw new Error('Admin not found.');
+    }
+});
+
+const getGoals = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.user._id);
+
+    if (admin) {
+        res.status(200).json({
+            success: true,
+            data: { goals: admin.goals }
+        });
+    } else {
+        res.status(404);
+        throw new Error('Goals not found.');
+    }
+});
+
+const setGoals = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.user._id);
+
+    if (admin) {
+        admin.goals = req.body.goals;
+
+        const updatedAdmin = await admin.save();
+
+        res.status(200).json({
+            success: true,
+            data: { goals: updatedAdmin.goals }
         });
     } else {
         res.status(404);
@@ -121,44 +161,12 @@ const setMargins = asyncHandler(async (req, res) => {
     }
 });
 
-const getGoals = asyncHandler(async (req, res) => {
-    const admin = await Admin.findById(req.user._id);
-
-    if (admin) {
-        res.status(200).json({
-            success: true,
-            data: { goals: admin.goals }
-        });
-    } else {
-        res.status(404);
-        throw new Error('Goals not found.');
-    }
-});
-
-const setGoals = asyncHandler(async (req, res) => {
-    const admin = await Admin.findById(req.user._id);
-
-    if (admin) {
-        admin.goals = req.body.goals || admin.goals;
-
-        const updatedAdmin = await admin.save();
-
-        res.status(200).json({
-            success: true,
-            data: { goals: updatedAdmin.goals }
-        });
-    } else {
-        res.status(404);
-        throw new Error('Admin not found.');
-    }
-});
-
 export {
     getAdminDashboard,
     updatePaymentAccount,
     getPaymentAccount,
-    getMargins,
-    setMargins,
     getGoals,
-    setGoals
+    setGoals,
+    getMargins,
+    setMargins
 };

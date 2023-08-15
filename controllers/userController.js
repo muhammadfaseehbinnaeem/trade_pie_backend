@@ -85,7 +85,7 @@ const registerUser = asyncHandler(async (req, res) => {
                             });
                         } else {
                             res.status(400);
-                            throw new Error('Team commission not given.');
+                            throw new Error('Invalid team commission data.');
                         }
                     } else {
                         res.status(201).json({
@@ -95,7 +95,7 @@ const registerUser = asyncHandler(async (req, res) => {
                     }
                 } else {
                     res.status(400);
-                    throw new Error('Referral commission not given.');
+                    throw new Error('Invalid referral commission data.');
                 }
             } else {
                 res.status(400);
@@ -242,6 +242,20 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
+const getUserWallet = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        res.status(200).json({
+            success: true,
+            data: { wallet: user.wallet }
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found.');
+    }
+})
+
 const verifyEmailForgotPassword = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
 
@@ -327,6 +341,7 @@ export {
     logoutUser,
     getUserProfile,
     updateUserProfile,
+    getUserWallet,
     verifyEmailForgotPassword,
     changeUserPassword,
     setForgotPassword

@@ -6,6 +6,7 @@ import {
     logoutUser,
     getUserProfile,
     updateUserProfile,
+    getUserWallet,
     verifyEmailForgotPassword,
     changeUserPassword,
     setForgotPassword
@@ -20,6 +21,8 @@ router.route('/logout').post(logoutUser);
 
 router.route('/profile').get(protect, getUserProfile);
 router.route('/profile').put(protect, updateUserProfile);
+
+router.route('/wallet').get(protect, getUserWallet);
 
 router.route('/password').put(protect, changeUserPassword);
 
