@@ -11,6 +11,11 @@ const adminSchema = new mongoose.Schema(
         accountType: { type: String, required: true },
         referralCommission: { type: Number, required: true, default: 0 },
         teamCommission: { type: Number, required: true, default: 0 },
+        profitRange1: { type: Number, required: true, default: 0 },
+        profitRange2: { type: Number, required: true, default: 0 },
+        profitRange3: { type: Number, required: true, default: 0 },
+        profitRange4: { type: Number, required: true, default: 0 },
+        profitRange5: { type: Number, required: true, default: 0 },
         goals: { type: String, default: '' }
     },
     {

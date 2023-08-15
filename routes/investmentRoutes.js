@@ -5,7 +5,7 @@ import {
     getUserInvestments,
     getInvestmentById,
     updatePendingInvestment,
-    getAllInvestments,
+    getAllInvestments
 } from '../controllers/investmentController.js';
 import { protect, admin } from '../middlewares/authMiddleware.js';
 

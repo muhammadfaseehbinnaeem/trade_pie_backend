@@ -8,8 +8,9 @@ import path from 'path';
 
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-import investmentRoutes from './routes/investmentRoutes.js';
 import commissionRoutes from './routes/commissionRoutes.js';
+import investmentRoutes from './routes/investmentRoutes.js';
+import withdrawalRoutes from './routes/withdrawalRoutes.js';
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
@@ -41,10 +42,11 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/investments', investmentRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/commissions', commissionRoutes);
+app.use('/api/investments', investmentRoutes);
+app.use('/api/withdrawals', withdrawalRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

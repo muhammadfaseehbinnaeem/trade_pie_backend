@@ -1,8 +1,8 @@
 import asyncHandler from '../middlewares/asyncHandler.js';
 import Admin from '../models/adminModel.js';
-import User from '../models/userModel.js';
-import Investment from '../models/investmentModel.js';
 import Commission from '../models/commissionModel.js';
+import Investment from '../models/investmentModel.js';
+import Withdrawal from '../models/withdrawalModel.js';
 
 const getAdminDashboard = asyncHandler(async (req, res) => {
     const approvedReferralCommissionsCount = await Commission.countDocuments({ commissionType: 'Referral', isActive: false, isApproved: true });
@@ -15,6 +15,10 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
     const rejectedInvestmentsCount = await Investment.countDocuments({ isActive: false, isApproved: false });
     const pendingInvestmentsCount = await Investment.countDocuments({ isActive: true, isApproved: false });
 
+    const approvedWithdrawalsCount = await Withdrawal.countDocuments({ isActive: false, isApproved: true });
+    const rejectedWithdrawalsCount = await Withdrawal.countDocuments({ isActive: false, isApproved: false });
+    const pendingWithdrawalsCount = await Withdrawal.countDocuments({ isActive: true, isApproved: false });
+
     res.status(200).json({
         success: true,
         data: {
@@ -24,7 +28,10 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
             pendingTeamCommissionsCount,
             approvedInvestmentsCount,
             rejectedInvestmentsCount,
-            pendingInvestmentsCount
+            pendingInvestmentsCount,
+            approvedWithdrawalsCount,
+            rejectedWithdrawalsCount,
+            pendingWithdrawalsCount
         }
     });
 });
@@ -86,7 +93,7 @@ const setGoals = asyncHandler(async (req, res) => {
     const admin = await Admin.findById(req.user._id);
 
     if (admin) {
-        admin.goals = req.body.goals || admin.goals;
+        admin.goals = req.body.goals;
 
         const updatedAdmin = await admin.save();
 
@@ -98,12 +105,68 @@ const setGoals = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Admin not found.');
     }
-})
+});
+
+const getMargins = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.user._id);
+
+    if (admin) {
+        res.status(200).json({
+            success: true,
+            data: {
+                referralCommission: admin.referralCommission,
+                teamCommission: admin.teamCommission,
+                profitRange1: admin.profitRange1,
+                profitRange2: admin.profitRange2,
+                profitRange3: admin.profitRange3,
+                profitRange4: admin.profitRange4,
+                profitRange5: admin.profitRange5
+            }
+        });
+    } else {
+        res.status(404);
+        throw new Error('Margins not found.');
+    }
+});
+
+const setMargins = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.user._id);
+
+    if (admin) {
+        admin.referralCommission = Number(req.body.referralCommission) || admin.referralCommission;
+        admin.teamCommission = Number(req.body.teamCommission) || admin.teamCommission;
+        admin.profitRange1 = Number(req.body.profitRange1) || admin.profitRange1;
+        admin.profitRange2 = Number(req.body.profitRange2) || admin.profitRange2;
+        admin.profitRange3 = Number(req.body.profitRange3) || admin.profitRange3;
+        admin.profitRange4 = Number(req.body.profitRange4) || admin.profitRange4;
+        admin.profitRange5 = Number(req.body.profitRange5) || admin.profitRange5;
+
+        const updatedAdmin = await admin.save();
+
+        res.status(200).json({
+            success: true,
+            data: {
+                referralCommission: updatedAdmin.referralCommission,
+                teamCommission: updatedAdmin.teamCommission,
+                profitRange1: updatedAdmin.profitRange1,
+                profitRange2: updatedAdmin.profitRange2,
+                profitRange3: updatedAdmin.profitRange3,
+                profitRange4: updatedAdmin.profitRange4,
+                profitRange5: updatedAdmin.profitRange5
+            }
+        });
+    } else {
+        res.status(404);
+        throw new Error('Admin not found.');
+    }
+});
 
 export {
     getAdminDashboard,
     updatePaymentAccount,
     getPaymentAccount,
     getGoals,
-    setGoals
+    setGoals,
+    getMargins,
+    setMargins
 };

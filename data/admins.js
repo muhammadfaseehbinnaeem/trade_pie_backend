@@ -6,10 +6,15 @@ const admins = [
         email: 'admin@tradepie.com',
         password: bcrypt.hashSync('123', 10),
         isAdmin: true,
-        accountNumber: '03304095376',
-        accountType: 'Jazzcash',
-        referralCommission: 0,
-        teamCommission: 0,
+        accountNumber: '03487178935',
+        accountType: 'Easypaisa',
+        referralCommission: 10,
+        teamCommission: 5,
+        profitRange1: 2,
+        profitRange2: 10,
+        profitRange3: 25,
+        profitRange4: 40,
+        profitRange5: 100,
         goals: ''
     }
 ];
